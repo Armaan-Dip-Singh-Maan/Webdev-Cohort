@@ -1,0 +1,44 @@
+.container {
+    margin: 0;
+    padding: 0;
+    background-color: white;
+}
+.Navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #111111;
+}
+.menu ul {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    list-style: none;
+    gap: 20px;
+}
+.menu ul li a {
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+
+.logo-image {
+    height: 100%;
+    width: 100%;
+    object-fit: cover; 
+}
+
+.hero-image {
+    /* container for the image - adjust if you want to limit the image area */
+}
+
+.hero-image img {
+    width: 100%;
+    max-width: 800px;   /* change this to resize (e.g. 600px, 1000px) */
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
