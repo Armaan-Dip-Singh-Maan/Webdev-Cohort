@@ -2,7 +2,11 @@
 
 This folder contains Mermaid ER diagram sources (`.mmd`) and optional PNG/PDF exports for coursework submissions.
 
-## Clinic ER Diagram
+## Clinic ER Diagram (Clinic Appointment & Diagnostics — Web Dev Cohort 2026)
+
+**Timeline:** Start Apr 7, 2026 11:30 PM · Due May 10, 2026 12:29 PM · Eval May 10, 2026 12:30–1:00 PM.
+
+**Submission assets:** [`clinic-erd.mmd`](clinic-erd.mmd) (source), [`clinic-erd.png`](clinic-erd.png), [`clinic-erd.pdf`](clinic-erd.pdf) (exports). Interactive version: [ChaiCode-ER-Diagram](https://github.com/Armaan-Dip-Singh-Maan/ChaiCode-ER-Diagram) app, **Clinic & Diagnostics** tab or [`#clinic`](https://er-diagram-viewer.vercel.app#clinic).
 
 This folder contains a clean, scalable ER design for a clinic workflow:
 
@@ -16,11 +20,11 @@ This folder contains a clean, scalable ER design for a clinic workflow:
 
 ## Files
 
-| Diagram | Mermaid source | Notes |
-|--------|----------------|--------|
-| Clinic | `clinic-erd.mmd` | Appointments, consultations, tests, reports, payments |
-| Comic-Con parking | `comic-con-parking-erd.mmd` | Multi-zone parking, sessions, tickets, payments |
-| Smart elevator | `smart-elevator-erd.mmd` | Multi-building lifts, requests, assignments, trip logs, maintenance |
+| Diagram | Mermaid source | Exports | Notes |
+|--------|----------------|----------|--------|
+| Clinic | `clinic-erd.mmd` | `clinic-erd.png`, `clinic-erd.pdf` | Appointments, consultations, test catalog + orders, reports, payments |
+| Comic-Con parking | `comic-con-parking-erd.mmd` | `comic-con-parking-erd.png`, `comic-con-parking-erd.pdf` | Multi-zone parking, sessions, tickets, payments |
+| Smart elevator | `smart-elevator-erd.mmd` | `smart-elevator-erd.png`, `smart-elevator-erd.pdf` | Multi-building lifts, requests, assignments, trip logs, maintenance |
 
 ## Key Modeling Decisions
 
@@ -38,11 +42,15 @@ This folder contains a clean, scalable ER design for a clinic workflow:
 
 ## How To Export
 
-You can render `clinic-erd.mmd` in any Mermaid-compatible tool/editor and export to:
+Prebuilt PNG/PDF for the clinic diagram are in this folder. To regenerate from Mermaid (or export other `.mmd` files):
 
-- PNG/JPG image
-- PDF
-- shared board link after import (Draw.io, Excalidraw, FigJam using Mermaid plugin/import flow)
+```bash
+cd "ERD Diagram"
+npx @mermaid-js/mermaid-cli -i clinic-erd.mmd -o clinic-erd.png -b transparent
+npx @mermaid-js/mermaid-cli -i clinic-erd.mmd -o clinic-erd.pdf
+```
+
+You can also render in any Mermaid-compatible editor, [mermaid.live](https://mermaid.live), or import into Draw.io / Excalidraw / FigJam.
 
 ## Relationship Coverage (Assignment Questions)
 
