@@ -1,0 +1,124 @@
+erDiagram
+    PATIENTS {
+        int patient_id PK
+        string first_name
+        string last_name
+        date date_of_birth
+        string gender
+        string phone
+        string email
+        string blood_group
+        text address
+        datetime created_at
+    }
+
+    SPECIALTIES {
+        int specialty_id PK
+        string specialty_name
+        string department_name
+        string description
+    }
+
+    DOCTORS {
+        int doctor_id PK
+        int specialty_id FK
+        string first_name
+        string last_name
+        string qualification
+        string license_number
+        string phone
+        string email
+        int years_of_experience
+        bool is_active
+    }
+
+    APPOINTMENTS {
+        int appointment_id PK
+        int patient_id FK
+        int doctor_id FK
+        datetime appointment_datetime
+        string reason_for_visit
+        string status "BOOKED|CHECKED_IN|COMPLETED|CANCELLED|NO_SHOW"
+        string booking_channel
+        text cancellation_reason
+        datetime created_at
+    }
+
+    CONSULTATIONS {
+        int consultation_id PK
+        int appointment_id FK "UNIQUE, nullable"
+        int patient_id FK
+        int doctor_id FK
+        datetime consultation_datetime
+        text chief_complaint
+        text diagnosis
+        text notes
+        string outcome_status "FOLLOW_UP|REFERRED|DISCHARGED"
+        datetime created_at
+    }
+
+    TEST_CATALOG {
+        int test_type_id PK
+        string test_code
+        string test_name
+        string sample_type
+        decimal standard_price
+        bool is_active
+    }
+
+    CONSULTATION_TESTS {
+        int consultation_test_id PK
+        int consultation_id FK
+        int test_type_id FK
+        string priority "ROUTINE|URGENT"
+        string test_status "ORDERED|SAMPLE_COLLECTED|IN_PROGRESS|COMPLETED|CANCELLED"
+        datetime ordered_at
+        datetime sample_collected_at
+        datetime completed_at
+    }
+
+    TEST_REPORTS {
+        int report_id PK
+        int consultation_test_id FK "UNIQUE"
+        int patient_id FK
+        int doctor_id FK "ordering doctor"
+        date report_date
+        string result_summary
+        text detailed_findings
+        string report_file_url
+        string verified_by
+        datetime created_at
+    }
+
+    PAYMENTS {
+        int payment_id PK
+        int appointment_id FK "nullable"
+        int consultation_id FK "nullable"
+        int patient_id FK
+        decimal amount
+        string payment_type "CONSULTATION_FEE|DIAGNOSTIC_FEE|BUNDLE"
+        string payment_method "CASH|CARD|UPI|BANK_TRANSFER"
+        string payment_status "PENDING|PAID|FAILED|REFUNDED|PARTIAL"
+        datetime paid_at
+        string transaction_reference
+        text notes
+    }
+
+    PATIENTS ||--o{ APPOINTMENTS : books
+    DOCTORS ||--o{ APPOINTMENTS : scheduled_with
+    SPECIALTIES ||--o{ DOCTORS : classifies
+
+    APPOINTMENTS o|--o| CONSULTATIONS : may_result_in
+    PATIENTS ||--o{ CONSULTATIONS : attends
+    DOCTORS ||--o{ CONSULTATIONS : conducts
+
+    CONSULTATIONS ||--o{ CONSULTATION_TESTS : prescribes
+    TEST_CATALOG ||--o{ CONSULTATION_TESTS : uses
+    CONSULTATION_TESTS ||--o| TEST_REPORTS : generates
+
+    PATIENTS ||--o{ TEST_REPORTS : receives
+    DOCTORS ||--o{ TEST_REPORTS : ordered_by
+
+    PATIENTS ||--o{ PAYMENTS : makes
+    APPOINTMENTS o|--o{ PAYMENTS : billed_for
+    CONSULTATIONS o|--o{ PAYMENTS : billed_for

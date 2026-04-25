@@ -1,0 +1,133 @@
+erDiagram
+    VEHICLE_TYPES {
+        int vehicle_type_id PK
+        string type_code
+        string type_name
+        text description
+    }
+
+    ACCESS_CATEGORIES {
+        int access_category_id PK
+        string category_code
+        string category_name
+        text description
+    }
+
+    SPOT_CATEGORIES {
+        int spot_category_id PK
+        string category_code
+        string category_name
+        bool requires_ev_charger
+        bool is_reserved_area
+        text description
+    }
+
+    ZONES {
+        int zone_id PK
+        string zone_code
+        string zone_name
+        text directions_note
+    }
+
+    LEVELS {
+        int level_id PK
+        int zone_id FK
+        int level_number
+        string level_name
+    }
+
+    PARKING_SPOTS {
+        int spot_id PK
+        int zone_id FK
+        int level_id FK "nullable"
+        int spot_category_id FK
+        string spot_label
+        bool is_operational
+    }
+
+    PARKING_RATE_RULES {
+        int rate_rule_id PK
+        int vehicle_type_id FK "nullable"
+        int zone_id FK "nullable"
+        int spot_category_id FK "nullable"
+        decimal per_hour_rate
+        decimal flat_entry_fee
+        datetime effective_from
+        datetime effective_to
+        string rule_label
+    }
+
+    VEHICLES {
+        int vehicle_id PK
+        int vehicle_type_id FK
+        string license_plate
+        string country_code
+        datetime registered_at
+    }
+
+    VEHICLE_TYPE_SPOT_CATEGORY {
+        int map_id PK
+        int vehicle_type_id FK "UNIQUE with spot_category"
+        int spot_category_id FK "UNIQUE with vehicle_type"
+    }
+
+    ACCESS_CATEGORY_SPOT_CATEGORY {
+        int eligibility_id PK
+        int access_category_id FK "UNIQUE with spot_category"
+        int spot_category_id FK "UNIQUE with access_category"
+    }
+
+    PARKING_SESSIONS {
+        int session_id PK
+        int vehicle_id FK
+        int spot_id FK
+        int access_category_id FK "at entry"
+        int applied_rate_rule_id FK "nullable"
+        datetime entry_timestamp
+        datetime exit_timestamp "nullable while inside"
+        decimal computed_fee "nullable until exit"
+        string session_status "ACTIVE|EXITED|VOID"
+    }
+
+    PARKING_TICKETS {
+        int ticket_id PK
+        int session_id FK "UNIQUE"
+        string ticket_number
+        datetime issued_at
+    }
+
+    PAYMENTS {
+        int payment_id PK
+        int session_id FK
+        decimal amount
+        string payment_method "CASH|CARD|UPI|WALLET|OTHER"
+        string payment_status "PENDING|PAID|FAILED|REFUNDED|PARTIAL"
+        datetime paid_at
+        string transaction_reference
+        text notes
+    }
+
+    VEHICLE_TYPES ||--o{ VEHICLES : classifies
+
+    VEHICLE_TYPES ||--o{ VEHICLE_TYPE_SPOT_CATEGORY : allows_mapping
+    SPOT_CATEGORIES ||--o{ VEHICLE_TYPE_SPOT_CATEGORY : allowed_for_type
+
+    ACCESS_CATEGORIES ||--o{ ACCESS_CATEGORY_SPOT_CATEGORY : grants_use
+    SPOT_CATEGORIES ||--o{ ACCESS_CATEGORY_SPOT_CATEGORY : reserved_for_access
+
+    ZONES ||--o{ LEVELS : contains
+    ZONES ||--o{ PARKING_SPOTS : contains
+    LEVELS ||--o{ PARKING_SPOTS : stacks
+    SPOT_CATEGORIES ||--o{ PARKING_SPOTS : categorizes
+
+    VEHICLE_TYPES ||--o{ PARKING_RATE_RULES : scopes_rate
+    ZONES ||--o{ PARKING_RATE_RULES : scopes_rate
+    SPOT_CATEGORIES ||--o{ PARKING_RATE_RULES : scopes_rate
+
+    VEHICLES ||--o{ PARKING_SESSIONS : parks_in_visit
+    PARKING_SPOTS ||--o{ PARKING_SESSIONS : hosts_over_time
+    ACCESS_CATEGORIES ||--o{ PARKING_SESSIONS : declared_at_entry
+    PARKING_RATE_RULES ||--o{ PARKING_SESSIONS : applied_rule
+
+    PARKING_SESSIONS ||--|| PARKING_TICKETS : issues_one_ticket
+    PARKING_SESSIONS ||--o{ PAYMENTS : settled_by
