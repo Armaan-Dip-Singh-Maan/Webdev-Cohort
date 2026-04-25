@@ -1,0 +1,132 @@
+erDiagram
+    BUILDINGS {
+        int building_id PK
+        string building_code
+        string building_name
+        text address
+        string timezone
+    }
+
+    SERVICE_ZONES {
+        int zone_id PK
+        int building_id FK
+        string zone_code
+        string zone_name
+        text description
+    }
+
+    FLOORS {
+        int floor_id PK
+        int building_id FK
+        int floor_number
+        string floor_label
+        int sort_order
+    }
+
+    ELEVATOR_SHAFTS {
+        int shaft_id PK
+        int building_id FK
+        string shaft_label
+        text notes
+    }
+
+    ELEVATORS {
+        int elevator_id PK
+        int building_id FK
+        int shaft_id FK "UNIQUE"
+        int zone_id FK "nullable bank grouping"
+        string car_label
+        string model_number
+        int capacity_kg
+        datetime commissioned_at
+    }
+
+    ELEVATOR_FLOOR_SERVICE {
+        int map_id PK
+        int elevator_id FK "UNIQUE with floor_id"
+        int floor_id FK "UNIQUE with elevator_id"
+    }
+
+    PLATFORM_USERS {
+        int user_id PK
+        string external_ref
+        string display_name
+        string contact_phone
+    }
+
+    FLOOR_REQUESTS {
+        int request_id PK
+        int origin_floor_id FK
+        int destination_floor_id FK "nullable"
+        int requested_by_user_id FK "nullable"
+        datetime requested_at
+        string request_status "PENDING|ASSIGNED|IN_PROGRESS|COMPLETED|CANCELLED"
+    }
+
+    RIDE_ASSIGNMENTS {
+        int assignment_id PK
+        int request_id FK "UNIQUE"
+        int elevator_id FK
+        datetime assigned_at
+        datetime released_at "nullable"
+        string assignment_status "ACTIVE|COMPLETED|CANCELLED"
+    }
+
+    RIDE_TRIP_LOGS {
+        int trip_id PK
+        int assignment_id FK "UNIQUE"
+        int elevator_id FK
+        int departure_floor_id FK
+        int arrival_floor_id FK
+        datetime departed_at
+        datetime arrived_at
+        int duration_seconds "nullable"
+    }
+
+    ELEVATOR_LIVE_STATE {
+        int elevator_id PK "FK to elevators"
+        string operational_status "IDLE|MOVING|DOORS_OPEN|MAINTENANCE|OUT_OF_SERVICE"
+        int current_floor_id FK "nullable"
+        datetime last_event_at
+    }
+
+    MAINTENANCE_RECORDS {
+        int maintenance_id PK
+        int elevator_id FK
+        datetime scheduled_start
+        datetime actual_start "nullable"
+        datetime actual_end "nullable"
+        string maintenance_type "PREVENTIVE|CORRECTIVE|INSPECTION"
+        string work_status "SCHEDULED|IN_PROGRESS|COMPLETED|CANCELLED"
+        text description
+        string technician_ref
+    }
+
+    BUILDINGS ||--o{ SERVICE_ZONES : groups_banks
+    BUILDINGS ||--o{ FLOORS : contains
+    BUILDINGS ||--o{ ELEVATOR_SHAFTS : contains
+    BUILDINGS ||--o{ ELEVATORS : owns
+
+    SERVICE_ZONES ||--o{ ELEVATORS : bank_grouping
+
+    ELEVATOR_SHAFTS ||--|| ELEVATORS : houses_one_car
+
+    ELEVATORS ||--o{ ELEVATOR_FLOOR_SERVICE : serves
+    FLOORS ||--o{ ELEVATOR_FLOOR_SERVICE : served_by
+
+    FLOORS ||--o{ FLOOR_REQUESTS : origin
+    FLOORS ||--o{ FLOOR_REQUESTS : destination
+    PLATFORM_USERS ||--o{ FLOOR_REQUESTS : raises
+
+    FLOOR_REQUESTS ||--o| RIDE_ASSIGNMENTS : allocates
+    ELEVATORS ||--o{ RIDE_ASSIGNMENTS : handles
+
+    RIDE_ASSIGNMENTS ||--o| RIDE_TRIP_LOGS : produces_trip
+    ELEVATORS ||--o{ RIDE_TRIP_LOGS : runs
+    FLOORS ||--o{ RIDE_TRIP_LOGS : departure
+    FLOORS ||--o{ RIDE_TRIP_LOGS : arrival
+
+    ELEVATORS ||--|| ELEVATOR_LIVE_STATE : live_status
+    FLOORS ||--o{ ELEVATOR_LIVE_STATE : current_floor
+
+    ELEVATORS ||--o{ MAINTENANCE_RECORDS : maintenance_history

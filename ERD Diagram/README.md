@@ -1,4 +1,8 @@
-# Clinic ER Diagram
+# ER Diagrams (Web Dev Cohort)
+
+This folder contains Mermaid ER diagram sources (`.mmd`) and optional PNG/PDF exports for coursework submissions.
+
+## Clinic ER Diagram
 
 This folder contains a clean, scalable ER design for a clinic workflow:
 
@@ -12,7 +16,11 @@ This folder contains a clean, scalable ER design for a clinic workflow:
 
 ## Files
 
-- `clinic-erd.mmd`: Mermaid ER diagram source file.
+| Diagram | Mermaid source | Notes |
+|--------|----------------|--------|
+| Clinic | `clinic-erd.mmd` | Appointments, consultations, tests, reports, payments |
+| Comic-Con parking | `comic-con-parking-erd.mmd` | Multi-zone parking, sessions, tickets, payments |
+| Smart elevator | `smart-elevator-erd.mmd` | Multi-building lifts, requests, assignments, trip logs, maintenance |
 
 ## Key Modeling Decisions
 
@@ -48,3 +56,23 @@ You can render `clinic-erd.mmd` in any Mermaid-compatible tool/editor and export
 - Can one doctor attend many patients -> yes, via `consultations`
 - Can one consultation lead to multiple tests -> yes, `consultations 1:N consultation_tests`
 - How payments connect -> `payments` references patient and optional appointment/consultation
+
+---
+
+## Comic-Con parking (event venue)
+
+- Source: `comic-con-parking-erd.mmd` (exports: `comic-con-parking-erd.png`, `comic-con-parking-erd.pdf`).
+- Zones and levels sit above parking spots; vehicles accumulate many `parking_sessions` over event days; spots host many sessions over time.
+- Tickets are separate from sessions; payments attach to sessions; rate rules stay in `parking_rate_rules` instead of session rows.
+
+---
+
+## Smart elevator control (infrastructure monitoring)
+
+- Source: `smart-elevator-erd.mmd` (exports: `smart-elevator-erd.png`, `smart-elevator-erd.pdf`).
+- **Buildings** own **floors**, **shafts**, **service zones** (elevator banks), and **elevators**. Static elevator configuration (model, capacity, shaft) stays in `elevators`; **no ride telemetry** is stored there.
+- **Elevator ↔ floor** service range is a junction (`elevator_floor_service`): many elevators can serve the same floor; one elevator serves many floors.
+- **Floor requests** capture hall/car calls (`floor_requests`); **ride_assignments** link a request to exactly one elevator (`request_id` unique). Pending work is visible via `request_status` before an assignment exists.
+- **Ride trip logs** (`ride_trip_logs`) hold completed movement analytics (from/to floors, timestamps, duration) and stay separate from configuration.
+- **Elevator live state** is a dedicated 1:1 table for current `operational_status` and optional `current_floor_id` so status is not mixed with catalog fields.
+- **Maintenance records** append per elevator (`maintenance_records`); history is never overwritten—temporary disable is reflected in live state plus open maintenance rows.
